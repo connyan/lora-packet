@@ -641,10 +641,10 @@ class LoraPacket {
 
     if (this.isJoinRequestMessage() || this.isJoinAcceptMessage() || this.isDataMessage()) {
       obj["PHYPayload"] = {};
-      obj["PHYPayload"]["Data"] = asHexString(this.PHYPayload).toUpperCase();
-      obj["PHYPayload"]["MHDR"] = asHexString(this.MHDR);
+      obj["PHYPayload"]["Direction"] = this.getDir();
+      obj["PHYPayload"]["MHDR"] = {};
+      obj["PHYPayload"]["MHDR"]["MType"] = this.getMType();
       obj["PHYPayload"]["MACPayload"] = {};
-      obj["PHYPayload"]["MACPayload"]["Data"] = asHexString(this.MACPayload);
       obj["PHYPayload"]["MIC"] = asHexString(this.MIC);
     }
     if (this.isJoinRequestMessage()) {
@@ -656,14 +656,11 @@ class LoraPacket {
       obj["PHYPayload"]["MACPayload"]["NetID"] = asHexString(this.NetID);
       obj["PHYPayload"]["MACPayload"]["DevAddr"] = asHexString(this.DevAddr);
       obj["PHYPayload"]["MACPayload"]["DLSettings"] = {};
-      obj["PHYPayload"]["MACPayload"]["DLSettings"]["Data"] = asHexString(this.DLSettings);
       obj["PHYPayload"]["MACPayload"]["DLSettings"]["RX1DRoffset"] = this.getDLSettingsRxOneDRoffset();
       obj["PHYPayload"]["MACPayload"]["DLSettings"]["RX2DataRate"] = this.getDLSettingsRxTwoDataRate();
       obj["PHYPayload"]["MACPayload"]["RxDelay"] = {};
-      obj["PHYPayload"]["MACPayload"]["RxDelay"]["Data"] = asHexString(this.RxDelay);
       obj["PHYPayload"]["MACPayload"]["RxDelay"]["Del"] = this.getRxDelayDel();
       obj["PHYPayload"]["MACPayload"]["CFList"] = {};
-      obj["PHYPayload"]["MACPayload"]["CFList"]["Data"] = asHexString(this.CFList);
       if (this.CFList.length === 16) {
         obj["PHYPayload"]["MACPayload"]["CFList"]["FreqCh4"] = asHexString(this.getCFListFreqChFour());
         obj["PHYPayload"]["MACPayload"]["CFList"]["FreqCh5"] = asHexString(this.getCFListFreqChFive());
@@ -672,24 +669,21 @@ class LoraPacket {
         obj["PHYPayload"]["MACPayload"]["CFList"]["FreqCh8"] = asHexString(this.getCFListFreqChEight());
       }
     } else if (this.isDataMessage()) {
-      obj["PHYPayload"]["MACPayload"]["FHDR"] = asHexString(this.FHDR);
       obj["PHYPayload"]["MACPayload"]["FPort"] = asHexString(this.FPort);
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"] = {};
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["Data"] = asHexString(this.FRMPayload);
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["DevAddr"] = asHexString(this.DevAddr);
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FCnt"] = asHexString(this.FCnt);
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FOpts"] = asHexString(this.FOpts);
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["Direction"] = this.getDir();
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FCnt"] = this.getFCnt();
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FCtrl"] = {};
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FCtrl"]["Data"] = asHexString(this.FCtrl);
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FCtrl"]["ACK"] = this.getFCtrlACK();
-      obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FCtrl"]["ADR"] = this.getFCtrlADR();
+      obj["PHYPayload"]["MACPayload"]["FHDR"] = {};
+      obj["PHYPayload"]["MACPayload"]["FHDR"]["DevAddr"] = asHexString(this.DevAddr);
+      obj["PHYPayload"]["MACPayload"]["FHDR"]["FCtrl"] = {};
+      obj["PHYPayload"]["MACPayload"]["FHDR"]["FCtrl"]["ACK"] = this.getFCtrlACK();
+      obj["PHYPayload"]["MACPayload"]["FHDR"]["FCtrl"]["ADR"] = this.getFCtrlADR();
       if (this._getMType() == MType.CONFIRMED_DATA_DOWN || this._getMType() == MType.UNCONFIRMED_DATA_DOWN) {
-        obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FCtrl"]["FPending"] = this.getFCtrlFPending();
+        obj["PHYPayload"]["MACPayload"]["FHDR"]["FCtrl"]["FPending"] = this.getFCtrlFPending();
       } else {
-        obj["PHYPayload"]["MACPayload"]["FRMPayload"]["FCtrl"]["ADRACKReq"] = this.getFCtrlADRACKReq();
+        obj["PHYPayload"]["MACPayload"]["FHDR"]["FCtrl"]["ADRACKReq"] = this.getFCtrlADRACKReq();
+        obj["PHYPayload"]["MACPayload"]["FHDR"]["FCtrl"]["ClassB"] = this.getFCtrlFPending();
       }
+      obj["PHYPayload"]["MACPayload"]["FHDR"]["FCtrl"]["FOptsLen"] = this.FOpts.length;
+      obj["PHYPayload"]["MACPayload"]["FHDR"]["FCnt"] = this.getFCnt();
+      obj["PHYPayload"]["MACPayload"]["FHDR"]["FOpts"] = asHexString(this.FOpts);
     }
     return obj;
   }
